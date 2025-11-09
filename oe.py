@@ -360,7 +360,7 @@ class Config:
     HUGGINGFACE_CACHE_DIR = os.path.expanduser("~/.cache/huggingface/transformers")
     
     # WandB Configuration
-    WANDB_API_KEY = "e7e799fb8b3cb64fd75e6579b4829448ed0b9103"  # Default API key
+    WANDB_API_KEY = ""  # Default API key
     WANDB_PROJECT = "20251009-NEWSGROUP-4090"  # Project name
     
     @classmethod
