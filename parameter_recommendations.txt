@@ -1,0 +1,45 @@
+추가 실험 파라미터 제안
+================================================================================
+
+Masking Fine-tuning
+  우선순위: HIGH
+  파라미터: --masking_probabilities
+  값: 0.03,0.04,0.05,0.06,0.07,0.08
+  기대 효과: 0.5-1.0% AUROC 추가 개선 가능
+
+Top-p Exploration
+  우선순위: MEDIUM
+  파라미터: --attention_top_p_values
+  값: 0.10,0.20,0.30,0.40,0.50 (또는 0.20,0.22,0.24,0.26,0.28,0.30)
+  기대 효과: 현재 robust하므로 큰 개선 어려움, 안정성 확인 목적
+
+Stage Exploration
+  우선순위: HIGH
+  파라미터: --attention_stages
+  값: stage2,stage3,both
+  기대 효과: Stage별 특성에 따라 1-2% 개선 가능
+
+Loss Weight Tuning
+  우선순위: MEDIUM
+  파라미터: --oe_uniform_loss_weights, --self_attention_loss_weights
+  값: 0.5,1.0,1.5,2.0 (각각)
+  기대 효과: 0.5-1.5% AUROC 개선 가능
+
+Top-k Introduction
+  우선순위: MEDIUM-HIGH
+  파라미터: --attention_top_k_values
+  값: 3,5,10,20,50
+  기대 효과: 1-2% AUROC 개선 가능 (핵심 토큰 타겟팅)
+
+Best Config Ablation
+  우선순위: HIGH
+  파라미터: --attention_top_p_values, --masking_probabilities
+  값: 0.23,0.25,0.27 / 0.04,0.05,0.06
+  기대 효과: 0.5-1.0% AUROC 추가 개선 → 0.83+ 달성 가능
+
+Longer Training
+  우선순위: LOW-MEDIUM
+  파라미터: --num_epochs
+  값: 7 or 10
+  기대 효과: 0.3-0.7% AUROC 개선 가능 (수렴 여부에 따라)
+
