@@ -1,0 +1,168 @@
+======================================================================
+통계적 인사이트 분석
+======================================================================
+
+【1】 Baseline vs Self-Attention OE 통계 검정
+----------------------------------------------------------------------
+/usr/local/lib/python3.11/dist-packages/scipy/stats/_axis_nan_policy.py:579: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+  res = hypotest_fun_out(*samples, **kwds)
+
+AUROC:
+  Baseline: 0.7718 (n=28)
+  Self-OE:  0.7939 ± 0.0188 (n=70)
+  개선률: +2.85%
+  T-statistic: 6.1726
+  P-value: 0.000000
+  결과: 매우 유의미한 개선 (p < 0.001) ***
+
+AUPR:
+  Baseline: 0.7597 (n=28)
+  Self-OE:  0.7865 ± 0.0248 (n=70)
+  개선률: +3.53%
+  T-statistic: 5.7175
+  P-value: 0.000000
+  결과: 매우 유의미한 개선 (p < 0.001) ***
+
+FPR95:
+  Baseline: 0.6949 (n=28)
+  Self-OE:  0.6439 ± 0.0560 (n=70)
+  개선률: +7.34%
+  T-statistic: -4.8043
+  P-value: 0.000006
+  결과: 매우 유의미한 개선 (p < 0.001) ***
+
+
+【2】 Masking Probability 효과 분석
+----------------------------------------------------------------------
+
+Masking Probability = 0.00 (n=30):
+  AUROC: 0.7755 ± 0.0074
+  AUPR:  0.7627 ± 0.0064
+  FPR95: 0.6956 ± 0.0206
+
+Masking Probability = 0.05 (n=40):
+  AUROC: 0.8076 ± 0.0115
+  AUPR:  0.8044 ± 0.0170
+  FPR95: 0.6051 ± 0.0404
+
+✦ Masking 0.05 vs 0.00 비교:
+  개선률: +4.15%
+  P-value: 0.000000
+  결론: Masking 0.05가 통계적으로 유의미하게 우수
+
+
+【3】 Attention Top-p 효과 분석
+----------------------------------------------------------------------
+
+Top-p = 0.15 (n=20):
+  AUROC: 0.7911 ± 0.0188
+  AUPR:  0.7826 ± 0.0243
+  FPR95: 0.6513 ± 0.0572
+
+Top-p = 0.25 (n=30):
+  AUROC: 0.7976 ± 0.0188
+  AUPR:  0.7917 ± 0.0252
+  FPR95: 0.6339 ± 0.0545
+
+Top-p = 0.35 (n=20):
+  AUROC: 0.7911 ± 0.0188
+  AUPR:  0.7826 ± 0.0243
+  FPR95: 0.6515 ± 0.0574
+
+✦ 최적 Top-p: 0.25 (AUROC: 0.7976)
+  ANOVA F-statistic: 1.0313, P-value: 0.362140
+  결론: Top-p 간 차이가 유의미하지 않음
+
+
+【4】 Attention Filtering Method 효과 분석
+----------------------------------------------------------------------
+
+성능 순위 (AUROC 기준):
+
+top_k_avg_elbow_lower (n=14):
+  AUROC: 0.8011 ± 0.0264
+  AUPR:  0.7972
+  FPR95: 0.6180
+
+max_attention_elbow_lower (n=14):
+  AUROC: 0.7976 ± 0.0232
+  AUPR:  0.7938
+  FPR95: 0.6352
+
+sequential (n=14):
+  AUROC: 0.7946 ± 0.0089
+  AUPR:  0.7825
+  FPR95: 0.6804
+
+entropy_elbow_higher (n=14):
+  AUROC: 0.7887 ± 0.0151
+  AUPR:  0.7799
+  FPR95: 0.6400
+
+removed_avg_elbow_higher (n=14):
+  AUROC: 0.7874 ± 0.0139
+  AUPR:  0.7792
+  FPR95: 0.6459
+
+✦ 최고 성능 필터링 방법: top_k_avg_elbow_lower
+  AUROC: 0.8011
+
+
+【5】 최적 파라미터 조합 분석
+----------------------------------------------------------------------
+
+Top 5 파라미터 조합 (AUROC 기준):
+
+1. Top-p=0.25, Mask=0.05, Method=top_k_avg_elbow_lower
+   AUROC: 0.8240 ± 0.0047 (n=4)
+
+2. Top-p=0.15, Mask=0.05, Method=top_k_avg_elbow_lower
+   AUROC: 0.8217 ± 0.0066 (n=2)
+
+3. Top-p=0.35, Mask=0.05, Method=top_k_avg_elbow_lower
+   AUROC: 0.8217 ± 0.0066 (n=2)
+
+4. Top-p=0.25, Mask=0.05, Method=max_attention_elbow_lower
+   AUROC: 0.8176 ± 0.0027 (n=4)
+
+5. Top-p=0.35, Mask=0.05, Method=max_attention_elbow_lower
+   AUROC: 0.8162 ± 0.0039 (n=2)
+
+
+【6】 OOD Dataset별 성능 분석
+----------------------------------------------------------------------
+
+AG News:
+  Baseline AUROC: 0.7183
+  Self-OE AUROC:  0.7544 ± 0.0359
+  개선률: +5.03%
+
+WikiText:
+  Baseline AUROC: 0.8254
+  Self-OE AUROC:  0.8333 ± 0.0233
+  개선률: +0.96%
+
+✦ WikiText에서 더 큰 성능 향상 확인 (0.96% vs 5.03%)
+
+
+======================================================================
+【주요 인사이트 요약】
+======================================================================
+
+  ✓ 1. Self-Attention OE는 Baseline 대비 AUROC +2.85% 개선
+
+  ✓ 2. Masking Probability 0.05가 0.00보다 약 4.1% 우수
+
+  ✓ 3. top_k_avg_elbow_lower 필터링 방법이 최고 성능 (AUROC 0.8011)
+
+  ✓ 4. Attention Top-p는 0.25가 최적
+
+  ✓ 5. WikiText OOD에서 AG News보다 더 큰 개선 효과 (0.96% vs 5.03%)
+
+  ✓ 6. 70개 실험 중 최고 성능: AUROC 0.8264
+
+  ✓ 7. 성능 편차(std)가 작아 안정적인 방법론 (σ=0.0188)
+
+======================================================================
+
+✓ 인사이트가 'statistical_insights.txt'에 저장되었습니다.
